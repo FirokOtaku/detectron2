@@ -1,3 +1,5 @@
+# modified by Firok
+
 # Copyright (c) Facebook, Inc. and its affiliates.
 import argparse
 import glob
@@ -91,8 +93,13 @@ def test_opencv_video_format(codec, file_ext):
 
 
 if __name__ == "__main__":
+
+    from custom.cli_util import parser_addition, args_addition
     mp.set_start_method("spawn", force=True)
-    args = get_parser().parse_args()
+    parser = get_parser()
+    parser_addition(parser)
+    args = parser.parse_args()
+    args_addition(args)
     setup_logger(name="fvcore")
     logger = setup_logger()
     logger.info("Arguments: " + str(args))
@@ -100,6 +107,37 @@ if __name__ == "__main__":
     cfg = setup_cfg(args)
 
     demo = VisualizationDemo(cfg)
+
+    while True:
+        try:
+            line = input('输入文件路径以推理: ').strip()
+            if line == 'exit' or line == 'quit' or line == 'stop':
+                break
+
+            img = read_image(line, format="BGR")
+            start_time = time.time()
+            predictions, visualized_output = demo.run_on_image(img)
+            logger.info(
+                "{}: {} in {:.2f}s".format(
+                    line,
+
+                    "detected {} instances".format(len(predictions["instances"]))
+                    if "instances" in predictions
+                    else "finished",
+                    time.time() - start_time,
+                    )
+            )
+
+            WINDOW_NAME = '推理: ' + line
+
+            cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
+            cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
+            if cv2.waitKey(0) == 27:
+                break  # esc to quit
+
+        except Exception as e:
+            print('发生错误')
+            print(str(e))
 
     if args.input:
         if len(args.input) == 1:
