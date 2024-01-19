@@ -65,14 +65,20 @@ if __name__ == "__main__":
             print('instances 数据')
             print(instances)
 
-            print('pred_boxes: ')
+            print('scores')
             print(instances.scores)
+            print('pred_masks')
             print(instances.pred_masks)
+            print('pred_classes')
             print(instances.pred_classes)
-            # if instances['pred_boxes'] > 0:
-            #     instance = instances[0]
-            #     print(instance['pred_boxes'])
-            #     print(instance['pred_classes'])
+
+            import imantics
+            masks_raw = instances.pred_masks.cpu()
+            for mask_raw in masks_raw:
+                shape = imantics.Mask(mask_raw)
+                print('shape')
+                print(shape.polygons())
+
 
             cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
             cv2.imshow(WINDOW_NAME, visualized_output.get_image()[:, :, ::-1])
