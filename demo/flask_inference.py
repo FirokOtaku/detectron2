@@ -67,16 +67,16 @@ def inference():
     predictions, visualized_output = demo.run_on_image(img)
 
     instances = predictions['instances']
-    result['scores'] = instances.scores
-    result['pred_classes'] = instances.pred_classes
-    result['pred_shapes'] = []
+    result['predScores'] = instances.scores
+    result['predClasses'] = instances.pred_classes
+    result['predShapes'] = []
     for mask_raw in instances.pred_masks.cpu():
         shape = imantics.Mask(mask_raw)
         shape_polygon = shape.polygons()
         pred_shape = []
         for shape_polygon_pt in shape_polygon:
             pred_shape.append(shape_polygon_pt)
-        result['pred_shapes'].append(pred_shape)
+        result['predShapes'].append(pred_shape)
 
     result['endTime'] = time.time()
     result['costTime'] = result['endTime'] - result['startTime']
